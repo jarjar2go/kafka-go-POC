@@ -19,8 +19,6 @@ const (
 )
 
 func main() {
-	// alternative: explicit commits: split message read in fetch and commit, committing marks fetched message as read
-	// https://github.com/segmentio/kafka-go#explicit-commits
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:  []string{broker},
 		GroupID:  consumerGroupId,
@@ -29,7 +27,6 @@ func main() {
 		MaxBytes: 1024,
 	})
 
-	// use message compression: https://github.com/segmentio/kafka-go#compression
 	writer := kafka.NewWriter(kafka.WriterConfig{
 		Brokers: []string{broker},
 		Topic:   topic,
@@ -41,7 +38,7 @@ func main() {
 
 	exit := make(chan os.Signal)
 	signal.Notify(exit, os.Interrupt, syscall.SIGTERM)
-	<-exit
+	<-exit  // block until SIGTERM (CTRL + C)
 
 	if e := reader.Close(); e != nil { fmt.Println("Error closing reader:", e) }
 	if e := writer.Close(); e != nil { fmt.Println("Error closing writer:", e) }
